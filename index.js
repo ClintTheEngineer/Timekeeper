@@ -1,26 +1,31 @@
-import { timeZones } from "./timezones.js";
-import { isDST } from "./daylight-savings.js";
+const timeZones = require('./timezones.js');
+const aliases = require('./zone-aliases.js');
+const isDST = require('./daylight-savings.js');
 
-const getTimeByTimeZone = (timeZone) => {
-    
-    let resultTime;
-    const currentDate = new Date();
-    let minutes = currentDate.getUTCMinutes();
-    let hours = currentDate.getUTCHours()+timeZones[timeZone];
-   
-    if (isDST() === true) hours = hours+1;
-    
-    if (minutes.toString().length === 1) minutes = `0${minutes}`;
-    if (hours.toString().length === 1) minutes = `0${hours}`;
-    Object.keys(timeZones).forEach((e)=> {
-     if (timeZone === e && hours > 0) {
-        resultTime = `${hours}:${minutes}`
-    } else {
-        resultTime = `${hours+24}:${minutes}`
-    }    
-   })   
- 
-   return resultTime;
-}
 
-console.log(getTimeByTimeZone('Eastern'));
+const getTimeByTimeZone = (zone) => {
+    const normalizedZone = aliases[zone] || zone;
+    const offset = timeZones[normalizedZone];
+
+  if (offset === undefined) {
+    throw new Error(`Unknown time zone: ${timeZone}`);
+  }
+
+  const now = new Date();
+  let hours = now.getUTCHours() + offset + (isDST() ? 1 : 0);
+  let minutes = now.getUTCMinutes();
+
+  // Handle 24-hour wraparound
+  hours = (hours + 24) % 24;
+
+  const paddedHours = hours.toString().padStart(2, "0");
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+
+  return `${paddedHours}:${paddedMinutes}`;
+};
+
+
+
+module.exports = getTimeByTimeZone;
+
+

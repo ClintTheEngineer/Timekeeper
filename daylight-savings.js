@@ -18,7 +18,7 @@ function getDSTEndDate(year) {
     return end;
 }
 
-export function isDST() {
+ function isDST() {
     const today = new Date();
     const currentYear = today.getUTCFullYear();
 
@@ -30,4 +30,4 @@ export function isDST() {
 }
 
 
-
+module.exports = isDST, getDSTEndDate, getDSTStartDate;
